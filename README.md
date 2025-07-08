@@ -1,5 +1,8 @@
 # Go Process Monitor
 
+[![Go CI](https://github.com/juong-jko/monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/juong-jko/monitor/actions/workflows/ci.yml)
+
+
 This is a simple command-line tool written in Go to monitor the CPU and memory usage of a specific process ID (PID) at regular intervals.
 
 ## Dependencies
