@@ -1,0 +1,35 @@
+name: Release Go Executable
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on tags like v1.0, v1.2.3
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build for Windows
+        run: GOOS=windows GOARCH=amd64 go build -o monitor.exe .
+
+      - name: Build for Linux
+        run: GOOS=linux GOARCH=amd64 go build -o monitor-linux .
+      
+      - name: Build for macOS
+        run: GOOS=darwin GOARCH=amd64 go build -o monitor-macos .
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            monitor.exe
+            monitor-linux
+            monitor-macos
