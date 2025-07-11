@@ -63,7 +63,10 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case <-r.Context().Done():
 			return
 		case msg := <-messageChan:
-			fmt.Fprintf(w, "data: %s\n\n", msg)
+			_, err := fmt.Fprintf(w, "data: %s\n\n", msg)
+			if err != nil {
+				log.Printf("Error writing to writer: %w\n", err)
+			}
 			flusher.Flush()
 		}
 	}
