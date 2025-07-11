@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
@@ -34,6 +35,34 @@ func main() {
 	signalCtx, cancel := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	// Start process monitoring
-	monitor.MonitorProcess(signalCtx, proc, *interval)
+	// Create a channel to receive monitoring data
+	dataChan := make(chan monitor.Info)
+
+	// Start process monitoring in a separate goroutine
+	go monitor.MonitorProcess(signalCtx, proc, *interval, dataChan)
+
+	// Create a new broker
+	broker := monitor.NewBroker()
+
+	// Start a goroutine to broadcast monitoring data to clients
+	go func() {
+		for info := range dataChan {
+			broker.Mu.Lock()
+			for client := range broker.Clients {
+				client <- info.String()
+			}
+			broker.Mu.Unlock()
+		}
+	}()
+
+	// Set up HTTP server
+	http.Handle("/events", broker)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
+	})
+
+	log.Println("Starting web server on :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
+	}
 }

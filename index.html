@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Monitoring</h1>
+    <div id="monitoring"></div>
+    <script>
+        const monitoring = document.getElementById('monitoring');
+        const eventSource = new EventSource('/events');
+        eventSource.onmessage = (event) => {
+            monitoring.innerHTML += event.data + '<br>';
+        };
+    </script>
+</body>
+</html>
