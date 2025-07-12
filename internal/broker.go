@@ -38,6 +38,14 @@ func (b *Broker) listen() {
 	}
 }
 
+func (b *Broker) Broadcast(info *Info) {
+	b.Mu.Lock()
+	for client := range b.Clients {
+		client <- info.String()
+	}
+	b.Mu.Unlock()
+}
+
 func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {

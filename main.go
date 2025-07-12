@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -47,12 +48,9 @@ func main() {
 	// Start a goroutine to broadcast monitoring data to clients
 	go func() {
 		for info := range dataChan {
-			broker.Mu.Lock()
-			for client := range broker.Clients {
-				client <- info.String()
-			}
-			broker.Mu.Unlock()
+			broker.Broadcast(&info)
 		}
+		os.Exit(0)
 	}()
 
 	// Set up HTTP server
